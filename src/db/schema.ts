@@ -9,7 +9,7 @@ export const usersTable = pgTable("users", {
 export const gamesTable = pgTable("games", {
     game_id: integer().notNull(),
     player_id: varchar().references(() => usersTable.riot_puiid).notNull(),
-    result: boolean().notNull(),
+    win: boolean().notNull(),
     deaths: integer().notNull(),
     assists: integer().notNull(),
     kills: integer().notNull(),
