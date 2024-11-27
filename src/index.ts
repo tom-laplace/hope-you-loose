@@ -1,4 +1,10 @@
-import { Client, GatewayIntentBits, REST, Routes } from "discord.js";
+import {
+  Client,
+  GatewayIntentBits,
+  REST,
+  Routes,
+  TextChannel,
+} from "discord.js";
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import {
@@ -55,6 +61,7 @@ client.once("interactionCreate", async (interaction) => {
 
 async function checkNewGames() {
   const users = await db.select().from(usersTable);
+  const guilds = client.guilds.cache;
 
   for (const user of users) {
     // biome-ignore lint/style/noNonNullAssertion: Var is checked in the if statement
@@ -71,8 +78,15 @@ async function checkNewGames() {
       // biome-ignore lint/style/noNonNullAssertion: Var is checked in the if statement
       const matchDetails = await getMatchDetails(latestMatch, RIOT_API_KEY!);
       const participant = matchDetails.info.participants.find(
-        (p: any) => p.puuid === user.riot_puiid
+        (p) => p.puuid === user.riot_puiid
       );
+
+      if (!participant) {
+        console.error(
+          `Could not find participant for user ${user.riot_username}`
+        );
+        return;
+      }
 
       await db.insert(gamesTable).values({
         game_id: latestMatch,
@@ -83,20 +97,28 @@ async function checkNewGames() {
         kills: participant.kills,
       });
 
-      const channel = await client.channels.fetch("channel_id");
-      if (channel?.isTextBased()) {
-        await channel.send(
-          `${user.riot_username} ${participant.win ? "won" : "lost"} with ${
-            participant.kills
-          }/${participant.deaths}/${participant.assists}`
-        );
-      }
+      // biome-ignore lint/complexity/noForEach: This is a simple forEach loop
+      guilds.forEach((guild) => {
+        const generalChannel = guild.channels.cache.find(
+          (channel) =>
+            channel.name === "general" && channel instanceof TextChannel
+        ) as TextChannel;
+
+        if (generalChannel) {
+          generalChannel.send(
+            `${user.riot_username} ${participant.win ? "won" : "lost"} with ${
+              participant.kills
+            }/${participant.deaths}/${participant.assists}`
+          );
+        }
+      });
     }
   }
 }
 
 async function main() {
-  await rest.put(Routes.applicationCommands(DISCORD_APP_CLIENT_ID), {
+  // biome-ignore lint/style/noNonNullAssertion: Var is checked in the if statement
+  await rest.put(Routes.applicationCommands(DISCORD_APP_CLIENT_ID!), {
     body: [trackCommand.toJSON()],
   });
 

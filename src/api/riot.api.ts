@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { MatchResponse } from "../types/riot.types";
 
 export async function getPuuid(
   username: string,
@@ -23,7 +24,7 @@ export async function getUserMatchesByPuuid(
 export async function getMatchDetails(
   matchId: string,
   apiKey: string
-): Promise<unknown> {
+): Promise<MatchResponse> {
   const response = await axios.get(
     `https://europe.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`
   );
