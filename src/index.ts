@@ -1,11 +1,10 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 
-const { DISCORD_TOKEN, DISCORD_CLIENT_ID, DATABASE_URL } = process.env;
+const { DISCORD_BOT_TOKEN, DISCORD_APP_CLIENT_ID, DATABASE_URL, RIOT_API_KEY } = process.env;
 
-if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID || !DATABASE_URL) {
+if (!DISCORD_BOT_TOKEN || !DISCORD_APP_CLIENT_ID || !DATABASE_URL || !RIOT_API_KEY) {
   throw new Error("Missing environment variables");
 }
 
-// biome-ignore lint/style/noNonNullAssertion: process env vars are checked above
-const db = drizzle(process.env.DATABASE_URL!);
+const db = drizzle(DATABASE_URL);
