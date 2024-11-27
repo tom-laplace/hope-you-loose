@@ -60,3 +60,6 @@ jspm_packages/
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+# Personal notes of the projects
+notes.md
