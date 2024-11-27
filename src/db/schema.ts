@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -13,4 +13,5 @@ export const gamesTable = pgTable("games", {
     deaths: integer().notNull(),
     assists: integer().notNull(),
     kills: integer().notNull(),
+    createdAt: timestamp().defaultNow().notNull(),
 })
